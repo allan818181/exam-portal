@@ -1,0 +1,108 @@
+CREATE DATABASE certifywell;
+USE certifywell;
+
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('student', 'examiner', 'admin') NOT NULL,
+    status ENUM('active', 'banned') DEFAULT 'active',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for storing courses
+CREATE TABLE Courses (
+    course_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT
+);
+
+-- Table for storing subjects, linked to courses
+CREATE TABLE Subjects (
+    subject_id INT PRIMARY KEY AUTO_INCREMENT,
+    course_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE
+);
+
+-- Table for storing exam details
+CREATE TABLE Exams (
+    exam_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    subject_id INT NOT NULL,
+    created_by INT NOT NULL, -- User ID of the examiner/admin
+    total_marks INT NOT NULL,
+    time_limit INT NOT NULL, -- in minutes
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Main table for storing all questions
+CREATE TABLE Questions (
+    question_id INT PRIMARY KEY AUTO_INCREMENT,
+    subject_id INT NOT NULL,
+    question_text TEXT NOT NULL,
+    question_type ENUM('mcq', 'true_false', 'subjective', 'fill_blank') NOT NULL,
+    marks INT NOT NULL,
+    FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id) ON DELETE CASCADE
+);
+
+-- Table for storing answer options for questions
+CREATE TABLE Question_Options (
+    option_id INT PRIMARY KEY AUTO_INCREMENT,
+    question_id INT NOT NULL,
+    option_text TEXT NOT NULL,
+    is_correct BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (question_id) REFERENCES Questions(question_id) ON DELETE CASCADE
+);
+
+-- Linking table to associate questions with specific exams
+CREATE TABLE Exam_Question_Bank (
+    exam_id INT NOT NULL,
+    question_id INT NOT NULL,
+    PRIMARY KEY (exam_id, question_id),
+    FOREIGN KEY (exam_id) REFERENCES Exams(exam_id) ON DELETE CASCADE,
+    FOREIGN KEY (question_id) REFERENCES Questions(question_id) ON DELETE CASCADE
+);
+
+-- Table to track each student's attempt at an exam
+CREATE TABLE Student_Exam_Attempts (
+    attempt_id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT NOT NULL,
+    exam_id INT NOT NULL,
+    start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    end_time DATETIME,
+    score DECIMAL(5,2),
+    status ENUM('started', 'submitted', 'graded') NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (exam_id) REFERENCES Exams(exam_id) ON DELETE CASCADE
+);
+
+-- Table to store the student's specific answers for each question
+CREATE TABLE Answers (
+    answer_id INT PRIMARY KEY AUTO_INCREMENT,
+    attempt_id INT NOT NULL,
+    question_id INT NOT NULL,
+    answer_text TEXT,
+    option_id INT, -- chosen option if MCQ/True-False
+    is_correct BOOLEAN,
+    marks_awarded DECIMAL(5,2),
+    FOREIGN KEY (attempt_id) REFERENCES Student_Exam_Attempts(attempt_id) ON DELETE CASCADE,
+    FOREIGN KEY (question_id) REFERENCES Questions(question_id) ON DELETE CASCADE,
+    FOREIGN KEY (option_id) REFERENCES Question_Options(option_id) ON DELETE SET NULL
+);
+
+-- Table to store generated tokens for exam access
+CREATE TABLE Generated_Tokens (
+    token_id INT PRIMARY KEY AUTO_INCREMENT,
+    exam_id INT NOT NULL,
+    student_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (exam_id) REFERENCES Exams(exam_id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
+);

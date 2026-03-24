@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CertifyWell - Online Examination System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="notification" class="notification-bar"></div>
+
+    <!-- Login/Signup Container -->
+    <div id="auth-container" class="container">
+        <!-- Login Form -->
+        <div id="login-container" class="form-container">
+            <h2>Welcome back to certifywell,</h2>
+            <p>Don't have an account? <a href="#" id="show-signup">Create one</a></p>
+            <form id="login-form">
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Log in</button>
+            </form>
+            <!-- Add link to show admin login -->
+            <p><a href="#" id="show-admin-login">Login as Admin</a></p>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signup-container" class="form-container" style="display: none;">
+            <h2>Create Account</h2>
+            <p>Already have an account? <a href="#" id="show-login">Log in</a></p>
+            <form id="signup-form">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" id="signup-password" placeholder="Password" required>
+                <input type="password" name="repeat-password" id="signup-repeat-password" placeholder="Repeat Password" required>
+                <div id="password-strength-indicator"></div>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- Add admin login option -->
+        <div id="admin-login-container" class="form-container" style="display: none;">
+            <h2>Admin Login</h2>
+            <form id="admin-login-form">
+                <input type="email" name="admin_email" placeholder="Admin Email" required>
+                <input type="password" name="admin_password" placeholder="Password" required>
+                <button type="submit">Log in as Admin</button>
+            </form>
+            <p><a href="#" id="show-user-login">Back to User Login</a></p>
+        </div>
+    </div>
+
+    <!-- Main Application Container (Hidden by default) -->
+    <div id="app-container" class="app-layout" style="display: none;">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>CertifyWell</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <!-- Links will be dynamically added here based on user role -->
+                <!-- Add admin navigation links -->
+                <li><a href="#" id="admin-dashboard-link">Dashboard</a></li>
+                <li><a href="#" id="admin-manage-users-link">Manage Users</a></li>
+                <li><a href="#" id="admin-manage-exams-link">Manage Exams</a></li>
+                <li><a href="#" id="admin-question-bank-link">Question Bank</a></li>
+                <li><a href="#" id="admin-settings-link">System Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="signout-btn">Sign Out</button>
+            </div>
+        </nav>
+
+        <main id="main-content">
+            <!-- Dashboard content will be loaded here -->
+            <section id="student-dashboard" class="dashboard-section" style="display: none;">
+                <h1>Student Dashboard</h1>
+                <div class="card-container">
+                    <div class="dashboard-card">
+                        <h3>Available Exams</h3>
+                        <p class="card-value">5</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Completed Exams</h3>
+                        <p class="card-value">2</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Average Score</h3>
+                        <p class="card-value">85%</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="student-my-exams" class="dashboard-section" style="display: none;">
+                <h1>My Exams</h1>
+                <div id="student-exam-list" class="list-panel">
+                    <!-- Student's exams will be populated here -->
+                </div>
+            </section>
+            
+            <section id="student-results" class="dashboard-section" style="display: none;">
+                <h1>My Results</h1>
+                <div id="student-results-list" class="list-panel">
+                    <!-- Student's results will be populated here -->
+                </div>
+            </section>
+
+            <section id="examiner-dashboard" class="dashboard-section" style="display: none;">
+                <h1>Examiner Dashboard</h1>
+                <div class="card-container">
+                    <div class="dashboard-card">
+                        <h3>Total Exams Created</h3>
+                        <p class="card-value">12</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Questions in Bank</h3>
+                        <p class="card-value">150</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Exams to Grade</h3>
+                        <p class="card-value">3</p>
+                    </div>
+                </div>
+                 <div class="grid-layout" style="margin-top: 30px;">
+                    <div class="form-panel">
+                        <h3>Generate Exam Token</h3>
+                        <form id="generate-token-form">
+                            <div class="form-group">
+                                <label for="token-exam">Select Exam</label>
+                                <select id="token-exam" name="exam_id" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="token-student">Select Student</label>
+                                <select id="token-student" name="student_id" required></select>
+                            </div>
+                            <button type="submit" class="btn-primary">Generate Token</button>
+                        </form>
+                    </div>
+                    <div class="list-panel">
+                        <h3>Generated Tokens</h3>
+                        <div id="generated-tokens-list">
+                            <!-- Generated tokens will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="examiner-manage-exams" class="dashboard-section" style="display: none;">
+                <h1>Manage Exams</h1>
+                <div class="grid-layout">
+                    <div class="form-panel">
+                        <h3>Create New Exam</h3>
+                        <form id="create-exam-form">
+                            <div class="form-group">
+                                <label for="exam-title">Exam Title</label>
+                                <input type="text" id="exam-title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="exam-subject">Subject</label>
+                                <select id="exam-subject" name="subject_id" required>
+                                    <option value="">Select a Subject</option>
+                                    <!-- Subjects will be loaded here -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="exam-description">Description</label>
+                                <textarea id="exam-description" name="description" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="exam-marks">Total Marks</label>
+                                <input type="number" id="exam-marks" name="total_marks" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="exam-limit">Time Limit (minutes)</label>
+                                <input type="number" id="exam-limit" name="time_limit" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Create Exam</button>
+                        </form>
+                    </div>
+                    <div class="list-panel">
+                        <h3>Your Exams</h3>
+                        <div id="exam-list">
+                            <!-- Exam list will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="examiner-question-bank" class="dashboard-section" style="display: none;">
+                <h1>Question Bank</h1>
+                <div class="grid-layout">
+                    <div class="form-panel">
+                        <h3>Add New Question</h3>
+                        <form id="create-question-form">
+                            <div class="form-group">
+                                <label for="question-subject">Subject</label>
+                                <select id="question-subject" name="subject_id" required>
+                                    <option value="">Select a Subject</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="question-text">Question Text</label>
+                                <textarea id="question-text" name="question_text" rows="4" required></textarea>
+                            </div>
+                             <div class="form-group">
+                                <label for="question-type">Question Type</label>
+                                <select id="question-type" name="question_type" required>
+                                    <option value="mcq">Multiple Choice</option>
+                                    <option value="true_false">True/False</option>
+                                    <option value="subjective">Subjective</option>
+                                    <option value="fill_blank">Fill in the Blank</option>
+                                </select>
+                            </div>
+                            <div id="options-container"></div>
+                            <!-- Add answer input for admin only -->
+                            <div class="form-group" id="admin-answer-input" style="display: block;">
+                                <label for="question-answer">Correct Answer</label>
+                                <input type="text" id="question-answer" name="correct_answer" required>
+                            </div>
+                             <div class="form-group">
+                                <label for="question-marks">Marks</label>
+                                <input type="number" id="question-marks" name="marks" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Add Question</button>
+                        </form>
+                    </div>
+                    <div class="list-panel">
+                        <h3>All Questions</h3>
+                        <div id="question-list">
+                            <!-- Question list will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="examiner-grade-exams" class="dashboard-section" style="display: none;">
+                <h1>Grade Exams</h1>
+                <div class="list-panel">
+                    <h3>Submitted Exams</h3>
+                    <div id="submitted-exams-list">
+                        <!-- Submitted exams will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="examiner-exam-scores" class="dashboard-section" style="display: none;">
+                <h1>Exam Scores</h1>
+                <div class="list-panel">
+                    <div class="list-header">
+                        <h3>All Graded Exams</h3>
+                        <div class="filter-controls">
+                            <select id="score-exam-filter">
+                                <option value="">Filter by Exam</option>
+                            </select>
+                            <button id="export-scores-btn" class="btn-secondary">Export to CSV</button>
+                        </div>
+                    </div>
+                    <div id="exam-scores-list">
+                        <!-- Scores will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="admin-dashboard" class="dashboard-section" style="display: none;">
+                <h1>Admin Dashboard</h1>
+                 <div class="card-container">
+                    <div class="dashboard-card">
+                        <h3>Total Users</h3>
+                        <p class="card-value">45</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Active Exams</h3>
+                        <p class="card-value">8</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>System Status</h3>
+                        <p class="card-value" style="color: #22c55e;">Online</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="admin-manage-users" class="dashboard-section" style="display: none;">
+                <h1>Manage Users</h1>
+                <div class="list-panel">
+                    <h3>All Registered Users</h3>
+                    <div id="user-list">
+                        <!-- User list will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="admin-settings" class="dashboard-section" style="display: none;">
+                <h1>System Settings</h1>
+                <div class="grid-layout">
+                    <!-- Courses Panel -->
+                    <div class="form-panel">
+                        <h3>Manage Courses</h3>
+                        <form id="create-course-form">
+                            <div class="form-group">
+                                <label for="course-name">Course Name</label>
+                                <input type="text" id="course-name" name="course_name" required>
+                            </div>
+                             <div class="form-group">
+                                <label for="course-description">Description</label>
+                                <textarea id="course-description" name="course_description" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary">Add Course</button>
+                        </form>
+                        <hr class="form-divider">
+                        <div id="course-list" class="list-panel-inner">
+                            <!-- Course list will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Subjects Panel -->
+                    <div class="form-panel">
+                        <h3>Manage Subjects</h3>
+                        <form id="create-subject-form">
+                            <div class="form-group">
+                                <label for="subject-course">Select Course</label>
+                                <select id="subject-course" name="course_id" required>
+                                    <option value="">Select a Course</option>
+                                    <!-- Courses will be loaded here -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject-name">Subject Name</label>
+                                <input type="text" id="subject-name" name="subject_name" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Add Subject</button>
+                        </form>
+                        <hr class="form-divider">
+                        <div id="subject-list" class="list-panel-inner">
+                             <!-- Subject list will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Exam Taking Interface -->
+            <section id="exam-interface" class="dashboard-section" style="display: none;">
+                <div class="exam-header">
+                    <h1 id="exam-title-display"></h1>
+                    <div id="exam-timer"></div>
+                </div>
+                <div id="exam-questions-container">
+                    <!-- Questions will be loaded here (answers hidden for students) -->
+                </div>
+                <button id="submit-exam-btn" class="btn-primary">Submit Exam</button>
+                <!-- Results section, hidden until exam is submitted -->
+                <div id="exam-results-container" style="display: none;">
+                    <h2>Your Results</h2>
+                    <div id="exam-score"></div>
+                    <div id="exam-feedback-list">
+                        <!-- Feedback per question will be shown here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Grade Exam Modal -->
+    <div id="grade-exam-modal" class="modal" style="display: none;">
+        <div class="modal-content modal-lg">
+            <span class="close-modal" data-modal-id="grade-exam-modal">&times;</span>
+            <h3 id="grade-exam-title">Grade Exam</h3>
+            <div id="grade-exam-questions-container">
+                <!-- Subjective questions and answers will be loaded here -->
+            </div>
+            <button id="finish-grading-btn" class="btn-primary">Finish Grading</button>
+        </div>
+    </div>
+
+    <!-- Edit Exam Modal -->
+    <div id="edit-exam-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" data-modal-id="edit-exam-modal">&times;</span>
+            <h3>Edit Exam</h3>
+            <form id="edit-exam-form">
+                <input type="hidden" id="edit-exam-id" name="exam_id">
+                <div class="form-group">
+                    <label for="edit-exam-title">Exam Title</label>
+                    <input type="text" id="edit-exam-title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-exam-subject">Subject</label>
+                    <select id="edit-exam-subject" name="subject_id" required>
+                        <!-- Subjects will be loaded here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-exam-description">Description</label>
+                    <textarea id="edit-exam-description" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-exam-marks">Total Marks</label>
+                    <input type="number" id="edit-exam-marks" name="total_marks" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-exam-limit">Time Limit (minutes)</label>
+                    <input type="number" id="edit-exam-limit" name="time_limit" required>
+                </div>
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Question Modal -->
+    <div id="edit-question-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" data-modal-id="edit-question-modal">&times;</span>
+            <h3>Edit Question</h3>
+            <form id="edit-question-form">
+                <input type="hidden" id="edit-question-id" name="question_id">
+                <div class="form-group">
+                    <label for="edit-question-text">Question Text</label>
+                    <textarea id="edit-question-text" name="question_text" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-question-marks">Marks</label>
+                    <input type="number" id="edit-question-marks" name="marks" required>
+                </div>
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" data-modal-id="edit-user-modal">&times;</span>
+            <h3>Edit User</h3>
+            <form id="edit-user-form">
+                <input type="hidden" id="edit-user-id" name="user_id">
+                <div class="form-group">
+                    <label for="edit-username">Username</label>
+                    <input type="text" id="edit-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-email">Email</label>
+                    <input type="email" id="edit-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-role">Role</label>
+                    <select id="edit-role" name="role" required>
+                        <option value="student">Student</option>
+                        <option value="examiner">Examiner</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3 id="confirmation-title">Are you sure?</h3>
+            <p id="confirmation-message">Do you really want to delete this item? This process cannot be undone.</p>
+            <div class="confirmation-buttons">
+                <button id="confirm-no-btn" class="btn-secondary">Cancel</button>
+                <button id="confirm-yes-btn" class="btn-danger">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Exam Questions Modal -->
+    <div id="manage-exam-questions-modal" class="modal" style="display: none;">
+        <div class="modal-content modal-lg">
+            <span class="close-modal" data-modal-id="manage-exam-questions-modal">&times;</span>
+            <h3 id="manage-questions-title">Manage Questions for Exam</h3>
+            <div class="grid-layout">
+                <div class="list-panel">
+                    <h4>Available Questions</h4>
+                    <div id="available-questions-list"></div>
+                </div>
+                <div class="list-panel">
+                    <h4>Questions in this Exam</h4>
+                    <div id="exam-questions-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+
+</body>
+</html>
