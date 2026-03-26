@@ -1,6 +1,6 @@
 # CertifyWell — Online Examination Portal 📝
 
-**Developer:** Victor Mpambije  
+**Developer:** Allan Deus 
 **Tech Stack:** PHP, MySQL, HTML, CSS, JavaScript  
 
 ---
@@ -32,4 +32,4 @@ The platform provides a secure and intuitive environment for conducting exams, t
 ## 🚀 How to Run Locally
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Veenbreeze/certifywell.git
+   git clone https://github.com/allan818181/exam-portal.git
