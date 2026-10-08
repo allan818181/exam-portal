@@ -1,0 +1,7 @@
+.env
+*.log
+.history/
+.marscode/
+.vscode/
+.DS_Store
+desktop.ini
